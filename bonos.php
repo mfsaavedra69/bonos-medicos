@@ -2,12 +2,12 @@
 require_once 'auth/check.php';
 require_once 'includes/header.php';
 ?>
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2>Bonos</h2>
-  <div>
-    <span class="me-3"><strong>Total hoy:</strong> $<span id="caja_total">0.00</span></span>
-    <button class="btn btn-success" id="btnNuevoBono">Nuevo bono</button>
-  </div>
+<div class="d-flex justify-content-between align-items-center mb-3"> 
+    <div class="d-flex align-items-center"> 
+        <button class="btn btn-success me-3" id="btnNuevoBono">Nuevo bono</button> 
+        <span><strong>Total hoy:</strong> $<span id="caja_total">0.00</span></span> 
+    </div> 
+    <h2 class="ms-auto">Bonos</h2> 
 </div>
 
 <table id="tablaBonos" class="table table-striped" style="width:100%">
