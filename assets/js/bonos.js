@@ -7,7 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
       { data: 'afiliado' },
       { data: 'total', render: d => parseFloat(d).toFixed(2) },
       { data: 'items_count', render: d => parseInt(d || 0, 10) },
-      { data: 'estado', render: d => d == 1 ? 'Activo' : 'Anulado' },
+      { data: 'estado', render: function(d) {
+          if (d === null || d === undefined) return '';
+          const s = String(d).toLowerCase();
+          if (s === '1' || s === 'emitido' || s === 'activo') return 'Emitido';
+          if (s === 'abonada' || s === 'abonado' || s === 'pagado') return 'Abonada';
+          if (s === 'cta cte' || s === 'ctacte' || s === 'cta_cte') return 'Cta Cte';
+          if (s === '0' || s === 'anulado' || s === 'cancelado') return 'Anulado';
+          return d;
+        } },
       { data: null, orderable: false, render: d => `
         <button class="btn btn-sm btn-primary btn-edit" data-id="${d.id}">Editar</button>
         <button class="btn btn-sm btn-danger btn-delete" data-id="${d.id}">Eliminar</button>` }
@@ -92,6 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnNuevoBono').addEventListener('click', () => {
     form.reset();
     document.getElementById('bono_id').value = '';
+    // default estado
+    if (document.getElementById('bono_estado')) document.getElementById('bono_estado').value = 'emitido';
     currentItems = [];
     renderItems(currentItems);
     modal.show();
@@ -197,6 +207,20 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('bono_id').value = data.id;
       // soportar schema con 'fecha' o 'fecha_emision' (extraer parte fecha si es datetime)
       document.getElementById('bono_fecha').value = data.fecha || (data.fecha_emision ? data.fecha_emision.split(' ')[0] : '');
+      // establecer estado si existe
+      const estadoSelect = document.getElementById('bono_estado');
+      if (estadoSelect) {
+        const mapEstado = (d) => {
+          if (d === null || d === undefined) return 'emitido';
+          const s = String(d).toLowerCase();
+          if (s === '1' || s === 'emitido' || s === 'activo') return 'emitido';
+          if (s === 'abonada' || s === 'abonado' || s === 'pagado') return 'abonada';
+          if (s === 'cta cte' || s === 'ctacte' || s === 'cta_cte') return 'cta cte';
+          if (s === '0' || s === 'anulado' || s === 'cancelado') return 'anulado';
+          return d;
+        };
+        estadoSelect.value = mapEstado(data.estado);
+      }
       // set afiliado hidden and search input for clarity
       if (data.afiliado_id) {
         document.getElementById('bono_afiliado').value = data.afiliado_id;
@@ -245,6 +269,8 @@ document.addEventListener('DOMContentLoaded', () => {
     payload.set('afiliado_id', afiliado_id);
     payload.set('fecha', fecha);
     payload.set('items', JSON.stringify(items));
+    const estadoVal = document.getElementById('bono_estado') ? document.getElementById('bono_estado').value : null;
+    if (estadoVal) payload.set('estado', estadoVal);
 
     if (id) {
       const params = new URLSearchParams();
@@ -252,6 +278,8 @@ document.addEventListener('DOMContentLoaded', () => {
       params.set('afiliado_id', afiliado_id);
       params.set('fecha', fecha);
       params.set('items', JSON.stringify(items));
+      const estadoVal = document.getElementById('bono_estado') ? document.getElementById('bono_estado').value : null;
+      if (estadoVal) params.set('estado', estadoVal);
       fetch('api/bonos.php', { method: 'PUT', body: params }).then(r=>r.json()).then(res => { if (res && res.success) { tabla.ajax.reload(); modal.hide(); // abrir vista de impresión
             if (res.bono && res.bono.id) window.open(`bono_print.php?id=${res.bono.id}`, '_blank');
             updateCajaToday(); } else showAlert(res.error || 'Error al actualizar'); }).catch(e => { console.error(e); showAlert('Error al actualizar'); }).finally(() => { if (btn) btn.disabled = false; });

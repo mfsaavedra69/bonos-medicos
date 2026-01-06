@@ -37,7 +37,7 @@ require_once 'includes/header.php';
         <div class="modal-body">
           <input type="hidden" name="id" id="bono_id">
           <div class="row mb-3">
-            <div class="col-md-6 position-relative">
+            <div class="col-md-5 position-relative">
               <label>Afiliado</label>
               <input type="hidden" name="afiliado_id" id="bono_afiliado">
               <input type="text" id="bono_afiliado_search" class="form-control" placeholder="Buscar por DNI, CUIL o nombre" autocomplete="off" required>
@@ -47,7 +47,16 @@ require_once 'includes/header.php';
               <label>Fecha</label>
               <input type="date" id="bono_fecha" name="fecha" class="form-control" value="<?php echo date('Y-m-d'); ?>">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
+              <label>Estado</label>
+              <select id="bono_estado" name="estado" class="form-select">
+                <option value="emitido">Emitido</option>
+                <option value="abonada">Abonada</option>
+                <option value="cta cte">Cta Cte</option>
+                <option value="anulado">Anulado</option>
+              </select>
+            </div>
+            <div class="col-md-2">
               <label>Total</label>
               <input type="text" id="bono_total" class="form-control" readonly value="0.00">
             </div>
