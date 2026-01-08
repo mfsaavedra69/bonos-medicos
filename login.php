@@ -84,6 +84,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['nombre'] = $user['nombre'];
                     $_SESSION['primer_ingreso'] = $user['primer_ingreso'];
 
+                    // Cargar permisos (claves de menú) y guardarlos en sesión
+                    try {
+                        $stmtMenus = $conn->prepare('SELECT m.clave FROM menus m JOIN usuario_menu um ON m.id = um.menu_id WHERE um.usuario_id = ?');
+                        if ($stmtMenus) {
+                            $stmtMenus->bind_param('i', $user['id']);
+                            $stmtMenus->execute();
+                            $r = $stmtMenus->get_result();
+                            $perms = [];
+                            while ($rowM = $r->fetch_assoc()) $perms[] = $rowM['clave'];
+                            $_SESSION['menus'] = $perms;
+                        }
+                    } catch (Exception $e) {
+                        error_log('Error cargando menús en sesión: ' . $e->getMessage());
+                    }
+
                     // Si es primer ingreso, redirigir a cambiar contraseña
                     if ($user['primer_ingreso']) {
                         header('Location: cambiar_password.php');
